@@ -605,12 +605,8 @@
       if (e.target === this) closeModal();
     });
 
-    // Ensure page always starts at the top — blur any auto-focused element
-    // and force scroll to top after the browser has finished its own scroll logic
-    if (document.activeElement) document.activeElement.blur();
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    });
+    // Focus the name field — keeps scroll near the top and gives users a natural starting point
+    document.getElementById('name').focus();
 
     loadBrittanyFont();
   });
