@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Birth Preferences Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+@font-face {
+  font-family: 'Brittany Signature';
+  font-weight: 400;
+  src: url('BrittanySignature.ttf') format('truetype');
+}
+
+  :root {
+    --blue: #2B5C8A;
+    --blue-light: #4A84BE;
+    --blue-box: #2B5C8A;
+    --cream: #FAF7F2;
+    --warm-white: #FDFBF8;
+    --text: #2C2C2C;
+    --muted: #6B7280;
+    --border: #D8E4EF;
+    --accent: #2B5C8A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Raleway', sans-serif;
+    background: linear-gradient(135deg, #EEF4FA 0%, #F5EFE8 100%);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  .hero {
+    text-align: center;
+    padding: 3rem 1.5rem 2rem;
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(43,92,138,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--blue-light);
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+  }
+  .hero h1 {
+    font-family: 'Brittany Signature', 'Dancing Script', cursive;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    color: var(--blue);
+    line-height: 1.1;
+    margin-bottom: 0.6rem;
+    font-weight: 700;
+  }
+  .hero p {
+    font-size: 0.95rem;
+    color: var(--muted);
+    font-weight: 400;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  .hero-divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(to right, var(--blue), var(--blue-light));
+    margin: 1.2rem auto 0;
+    border-radius: 2px;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+  }
+
+  .step-card {
+    background: var(--warm-white);
+    border-radius: 16px;
+    padding: 2rem 2.2rem;
+    margin-bottom: 1.4rem;
+    box-shadow: 0 2px 16px rgba(43,92,138,0.07), 0 1px 4px rgba(0,0,0,0.04);
+    border: 1px solid rgba(255,255,255,0.9);
+    position: relative;
+    overflow: hidden;
+  }
+  .step-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, var(--blue), var(--blue-light));
+    border-radius: 4px 0 0 4px;
+  }
+
+  .step-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue-light);
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .step-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--blue);
+    margin-bottom: 1.3rem;
+    font-family: 'Raleway', sans-serif;
+  }
+
+  label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--blue);
+    margin-bottom: 0.4rem;
+    margin-top: 1rem;
+  }
+  label:first-of-type { margin-top: 0; }
+
+  input[type="text"], textarea, select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: var(--cream);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  input[type="text"]:focus, textarea:focus {
+    border-color: var(--blue-light);
+    box-shadow: 0 0 0 3px rgba(74,132,190,0.12);
+    background: #fff;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 560px) { .input-row { grid-template-columns: 1fr; } }
+
+  .list-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  @media (max-width: 600px) { .list-section { grid-template-columns: 1fr; } }
+
+  .list-col-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    margin-bottom: 0.9rem;
+  }
+  .yes-title { background: var(--blue); color: #fff; }
+  .no-title  { background: #7B3F3F; color: #fff; }
+
+  .pref-item-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.45rem;
+  }
+  .pref-item-row input[type="text"] {
+    flex: 1;
+    font-size: 0.85rem;
+    padding: 0.45rem 0.7rem;
+    border-radius: 8px;
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    font-family: 'Libre Baskerville', serif;
+  }
+  .pref-item-row input[type="text"]:focus {
+    border-color: var(--blue-light);
+    box-shadow: 0 0 0 3px rgba(74,132,190,0.1);
+    background: #fff;
+    outline: none;
+  }
+  .remove-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 0.2rem;
+    flex-shrink: 0;
+    transition: color 0.15s;
+  }
+  .remove-btn:hover { color: #c00; }
+
+  .add-row-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    padding: 0.45rem 0.9rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 600;
+    color: var(--muted);
+    width: 100%;
+    margin-top: 0.4rem;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .add-row-btn:hover {
+    border-color: var(--blue-light);
+    color: var(--blue);
+    background: rgba(74,132,190,0.04);
+  }
+  .yes-add:hover { border-color: var(--blue); color: var(--blue); }
+  .no-add:hover  { border-color: #7B3F3F; color: #7B3F3F; }
+
+  .generate-section {
+    text-align: center;
+    padding: 2rem 0 0;
+  }
+  .generate-btn {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-light) 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 1.1rem 3rem;
+    font-family: 'Raleway', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(43,92,138,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .generate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 32px rgba(43,92,138,0.38);
+  }
+  .generate-btn:active { transform: translateY(0); }
+  .generate-note {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.8rem;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 20px;
+    max-width: 680px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.4rem 1.8rem;
+    border-bottom: 1px solid #EEE;
+  }
+  .modal-header h3 { font-size: 1rem; font-weight: 600; color: var(--blue); }
+  .close-btn {
+    background: none; border: none; font-size: 1.4rem;
+    cursor: pointer; color: #999; line-height: 1;
+  }
+  .close-btn:hover { color: #333; }
+
+  /* PDF PREVIEW inside modal */
+  #pdf-preview {
+    padding: 2rem 2.4rem;
+    font-family: 'Libre Baskerville', serif;
+    color: #222;
+    line-height: 1.5;
+    font-size: 0.82rem;
+  }
+  .preview-header {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  .preview-tag {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--blue);
+    font-weight: 600;
+  }
+  .preview-name {
+    font-family: 'Brittany Signature', 'Dancing Script', cursive;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    color: var(--blue);
+    font-weight: 700;
+    line-height: 1;
+    margin-top: 0.3rem;
+  }
+  .preview-location {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-top: 0.4rem;
+  }
+  .preview-divider {
+    height: 2px;
+    background: linear-gradient(to right, var(--blue), var(--blue-light), transparent);
+    margin: 1rem 0;
+    border-radius: 2px;
+  }
+  .preview-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    margin-top: 0.8rem;
+  }
+  .preview-story {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: #333;
+  }
+  /* Care team greeting — now matches Yes/No header pill style */
+  .preview-story .greeting {
+    display: inline-block;
+    background: var(--blue);
+    color: white;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-style: normal;
+    padding: 0.35rem 0.7rem;
+    border-radius: 5px;
+    margin-bottom: 0.9rem;
+  }
+  .preview-box-title {
+    background: var(--blue-box);
+    color: white;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 0.35rem 0.7rem;
+    border-radius: 5px;
+    margin-bottom: 0.6rem;
+    margin-top: 0.9rem;
+  }
+  .preview-box-title.no-box { background: #7B3F3F; }
+  .preview-item {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+    font-size: 0.78rem;
+    align-items: flex-start;
+  }
+  .preview-item .dot { color: var(--blue); flex-shrink: 0; margin-top: 0.05rem; }
+  .preview-item .no-dot { color: #7B3F3F; flex-shrink: 0; margin-top: 0.05rem; }
+  .preview-footer {
+    margin-top: 1.2rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid #EEE;
+    font-style: italic;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .modal-actions {
+    padding: 1rem 1.8rem 1.4rem;
+    border-top: 1px solid #EEE;
+    display: flex;
+    gap: 0.8rem;
+    justify-content: flex-end;
+  }
+  .btn-secondary {
+    background: #F3F4F6; border: 1px solid #E5E7EB;
+    color: #374151; border-radius: 10px;
+    padding: 0.7rem 1.4rem;
+    font-family: 'Raleway', sans-serif; font-size: 0.9rem; font-weight: 500;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .btn-secondary:hover { background: #E5E7EB; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--blue), var(--blue-light));
+    color: white; border: none; border-radius: 10px;
+    padding: 0.7rem 1.6rem;
+    font-family: 'Raleway', sans-serif; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; box-shadow: 0 4px 14px rgba(43,92,138,0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(43,92,138,0.38); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">Greater Toronto Doulas</div>
+  <br><br>
+  <h1>Birth Preferences Builder</h1>
+  <br>
+  <p>Create a beautiful, personalised birth plan to share with your care team — and download it as a PDF.</p>
+  <div class="hero-divider"></div>
+</div>
+
+<div class="container">
+
+  <div class="step-card">
+    <div class="step-label">Step 1</div>
+    <div class="step-title">About You</div>
+    <div class="input-row">
+      <div>
+        <label for="name">Your Name</label>
+        <input type="text" id="name" placeholder="Your name here">
+      </div>
+      <div>
+        <label for="baby-count">Which baby is this?</label>
+        <input type="text" id="baby-count" placeholder="e.g. 1st, 2nd, 3rd...">
+      </div>
+    </div>
+    <label for="location">Hospital or Birth Location</label>
+    <input type="text" id="location" placeholder="Where do you intend on giving birth?">
+    <label for="care-team">Care Team Greeting (optional)</label>
+    <input type="text" id="care-team" placeholder="e.g. MSH Care Team, Dear Midwives...">
+  </div>
+
+  <div class="step-card">
+    <div class="step-label">Step 2</div>
+    <div class="step-title">Your Story &amp; Intentions</div>
+    <label for="story">Share what matters most to you about this birth</label>
+    <textarea id="story" rows="6" placeholder="e.g. Thank you for being here during these deeply important moments. My hope is that we can work together in a spirit of mutual respect — balancing the wisdom of medicine with the wisdom of the body..."></textarea>
+  </div>
+
+  <div class="step-card">
+    <div class="step-label">Step 3</div>
+    <div class="step-title">Your Preferences</div>
+    <div class="list-section">
+      <div>
+        <div class="list-col-title yes-title">✓ Yes, Please</div>
+        <div id="yes-list"></div>
+        <button class="add-row-btn yes-add" onclick="addRow('yes')">＋ Add preference</button>
+      </div>
+      <div>
+        <div class="list-col-title no-title">✗ No, Thank You</div>
+        <div id="no-list"></div>
+        <button class="add-row-btn no-add" onclick="addRow('no')">＋ Add preference</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-label">Step 4</div>
+    <div class="step-title">Closing Words (optional)</div>
+    <label for="closing">A final message to your care team</label>
+    <textarea id="closing" rows="3" placeholder="e.g. Thank you for welcoming my baby into the world with respect, skill, and kindness while also protecting my mental and emotional well-being.">Thank you for welcoming my baby into the world with respect, skill and kindness while also protecting my mental and emotional well-being.</textarea>
+  </div>
+
+  <div class="generate-section">
+    <button class="generate-btn" onclick="previewDoc()">Preview &amp; Download PDF</button>
+    <p class="generate-note">Your information never leaves your device.</p>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Preview your Birth Preferences</h3>
+      <button class="close-btn" onclick="closeModal()">×</button>
+    </div>
+    <div id="pdf-preview"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Edit</button>
+      <button class="btn-primary" onclick="downloadPDF()">⬇ Download PDF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let yesCount = 0;
+  let noCount = 0;
+
+  // Cache the base64 font so we only fetch once
+  let brittanyFontBase64 = null;
+
+  // Attempt to load BrittanySignature.ttf as base64 for use in html2canvas
+  async function loadBrittanyFont() {
+    if (brittanyFontBase64) return brittanyFontBase64;
+    try {
+      const response = await fetch('BrittanySignature.ttf');
+      if (!response.ok) throw new Error('Font not found');
+      const buffer = await response.arrayBuffer();
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+      brittanyFontBase64 = 'data:font/truetype;base64,' + btoa(binary);
+      return brittanyFontBase64;
+    } catch (e) {
+      console.warn('Could not load BrittanySignature.ttf — falling back to Dancing Script', e);
+      return null;
+    }
+  }
+
+  function addRow(type) {
+    const list = document.getElementById(type + '-list');
+    const count = type === 'yes' ? ++yesCount : ++noCount;
+    const id = type + '-' + count;
+    const isNo = type === 'no';
+    const isFirst = count === 1;
+    const placeholder = isFirst ? (isNo ? 'e.g. No epidural' : 'e.g. Father announces gender') : '';
+
+    const row = document.createElement('div');
+    row.className = 'pref-item-row';
+    row.id = 'row-' + id;
+    row.innerHTML = `
+      <input type="text" id="${id}" placeholder="${placeholder}">
+      <button class="remove-btn" onclick="removeRow('row-${id}')" title="Remove">×</button>
+    `;
+    list.appendChild(row);
+    setTimeout(() => document.getElementById(id).focus(), 50);
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') addRow(type);
+    });
+  }
+
+  function removeRow(rowId) {
+    const el = document.getElementById(rowId);
+    if (el) el.remove();
+  }
+
+  function getItems(type) {
+    return [...document.querySelectorAll(`#${type}-list input[type="text"]`)]
+      .map(i => i.value.trim())
+      .filter(Boolean);
+  }
+
+  function getData() {
+    return {
+      name: document.getElementById('name').value.trim() || 'Your Name',
+      babyCount: document.getElementById('baby-count').value.trim(),
+      location: document.getElementById('location').value.trim(),
+      careTeam: document.getElementById('care-team').value.trim() || 'Care Team',
+      story: document.getElementById('story').value.trim(),
+      closing: document.getElementById('closing').value.trim(),
+      yesItems: getItems('yes'),
+      noItems: getItems('no'),
+    };
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    for (let i = 0; i < 3; i++) addRow('yes');
+    for (let i = 0; i < 3; i++) addRow('no');
+
+    document.getElementById('modal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // Pre-fetch font in the background so it's ready when needed
+    loadBrittanyFont();
+  });
+
+  function previewDoc() {
+    const d = getData();
+
+    let yesHTML = d.yesItems.map(item =>
+      `<div class="preview-item"><span class="dot">✓</span><span>${item}</span></div>`
+    ).join('');
+    let noHTML = d.noItems.map(item =>
+      `<div class="preview-item"><span class="no-dot">✗</span><span>${item}</span></div>`
+    ).join('');
+
+    const locationLine = [d.location, d.babyCount ? `Baby #${d.babyCount}` : ''].filter(Boolean).join(' · ');
+    const storyHtml = d.story
+      ? d.story.split(/\n\n+/).map(p => `<p style="margin-bottom:0.5em;">${p.replace(/\n/g, '<br>')}</p>`).join('')
+      : '<em style="color:#aaa">Your story will appear here.</em>';
+
+    document.getElementById('pdf-preview').innerHTML = `
+      <div class="preview-header">
+        <div class="preview-tag">Birth Preferences For</div>
+        <div class="preview-name">${d.name}</div>
+        ${locationLine ? `<div class="preview-location">${locationLine}</div>` : ''}
+      </div>
+      <div class="preview-divider"></div>
+      <div class="preview-columns">
+        <div class="preview-story">
+          ${d.careTeam ? `<div class="greeting">Dear ${d.careTeam}</div>` : ''}
+          ${storyHtml}
+        </div>
+        <div class="preview-lists">
+          <div class="preview-box-title">✓ Yes, Please</div>
+          ${yesHTML || '<div style="color:#aaa;font-size:0.75rem">None added yet</div>'}
+          <div class="preview-box-title no-box">✗ No, Thank You</div>
+          ${noHTML || '<div style="color:#aaa;font-size:0.75rem">None added yet</div>'}
+        </div>
+      </div>
+      ${d.closing ? `<div class="preview-footer">${d.closing.replace(/\n/g, '<br>')}<br><br><em>With gratitude, ${d.name}</em></div>` : ''}
+    `;
+
+    document.getElementById('modal').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+  }
+
+  async function downloadPDF() {
+    const d = getData();
+    const btn = document.querySelector('.btn-primary');
+    btn.textContent = 'Generating…';
+    btn.disabled = true;
+
+    // Load font as base64 so html2canvas can render it
+    const fontDataUrl = await loadBrittanyFont();
+
+    // Build the @font-face declaration — inline base64 if available, else fall back to Google Fonts
+    const fontFaceCSS = fontDataUrl
+      ? `@font-face { font-family: 'Brittany Signature'; src: url('${fontDataUrl}') format('truetype'); font-weight: 400; }`
+      : `@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');`;
+
+    const nameFont = fontDataUrl ? "'Brittany Signature', cursive" : "'Dancing Script', cursive";
+
+    const yesHTML = d.yesItems.map(item =>
+      `<div class="item"><span class="check yes-check">&#10003;</span><span>${item}</span></div>`
+    ).join('');
+    const noHTML = d.noItems.map(item =>
+      `<div class="item"><span class="check no-check">&#10007;</span><span>${item}</span></div>`
+    ).join('');
+    const locationLine = [d.location, d.babyCount ? `Baby #${d.babyCount}` : ''].filter(Boolean).join('  ·  ');
+
+    const storyHtmlPdf = d.story
+      ? d.story.split(/\n\n+/).map(para => `<p style="margin:0 0 8px 0;">${para.replace(/\n/g, '<br>')}</p>`).join('')
+      : '';
+
+    const closingHtmlPdf = d.closing ? d.closing.replace(/\n/g, '<br>') : '';
+
+    // Care team greeting — matches Yes/No header pill style in the PDF
+    const greetingHTML = d.careTeam
+      ? `<div style="
+            display:inline-block;
+            background:#E8F0F8;
+            color:#2C2C2C;
+            font-family:Arial,sans-serif;
+            font-size:8.5px;
+            font-weight:700;
+            letter-spacing:3px;
+            text-transform:uppercase;
+            padding:7px 12px;
+            border-radius:6px;
+            margin-bottom:12px;
+          ">Dear ${d.careTeam}</div>`
+      : '';
+
+    const printHTML = `
+      <style>
+        ${fontFaceCSS}
+        .item {
+          display: flex;
+          gap: 7px;
+          margin-bottom: 5px;
+          font-size: 10.5px;
+          line-height: 1.55;
+          align-items: flex-start;
+        }
+        .check { flex-shrink: 0; font-size: 10.5px; margin-top: 1px; }
+        .yes-check { color: #2B5C8A; }
+        .no-check  { color: #7B3F3F; }
+      </style>
+      <div id="print-page" style="
+        width: 794px;
+        min-height: 1123px;
+        background: #FAF7F2;
+        font-family: Georgia, 'Times New Roman', serif;
+        color: #2C2C2C;
+        position: relative;
+        box-sizing: border-box;
+        overflow: hidden;
+      ">
+        <div style="background:#E8F0F8; padding-bottom:28px;">
+          <div style="text-align:center; padding: 30px 40px 0;">
+            <div style="font-family:Arial,sans-serif; font-size:8.5px; letter-spacing:5px; color:#2C2C2C; text-transform:uppercase; font-weight:600; margin-bottom:16px;">Birth Preferences For</div>
+            <div id="pdf-name-el" style="font-family:${nameFont}; font-weight:700; font-size:${Math.max(20, Math.min(34, Math.floor(300 / (d.name.length * 0.5))))}px; color:#2C2C2C; line-height:1.1;">${d.name}</div>
+          </div>
+          ${locationLine ? `<div style="text-align:center; font-family:Arial,sans-serif; font-size:9.5px; color:#2C2C2C; letter-spacing:2px; padding:16px 40px 0;">${locationLine}</div>` : ''}
+        </div>
+
+        <div style="display:flex; gap:20px; padding:24px 40px 0; align-items:flex-start;">
+          <div style="flex:1; font-family:Georgia,serif; font-size:10.5px; line-height:1.8; color:#333;">
+            ${greetingHTML}
+            <div>${storyHtmlPdf}</div>
+          </div>
+          <div style="flex:1; font-family:Georgia,serif;">
+            <div style="background:#E8F0F8; color:#2C2C2C; font-family:Arial,sans-serif; font-size:8.5px; font-weight:700; letter-spacing:3px; text-transform:uppercase; padding:7px 12px; border-radius:6px; margin-bottom:8px;">Yes, Please</div>
+            <div style="margin-bottom:14px;">${yesHTML || ''}</div>
+            <div style="background:#7B3F3F; color:white; font-family:Arial,sans-serif; font-size:8.5px; font-weight:700; letter-spacing:3px; text-transform:uppercase; padding:7px 12px; border-radius:6px; margin-bottom:8px;">No, Thank You</div>
+            <div>${noHTML || ''}</div>
+          </div>
+        </div>
+
+        ${d.closing ? `
+        <div style="margin:24px 40px 0; padding-top:16px; border-top:1px solid #DDD; font-family:Georgia,serif; font-size:10.5px; color:#2C2C2C; line-height:1.8;">
+          ${closingHtmlPdf}
+          <div style="margin-top:16px; font-family:Georgia,serif; font-size:10.5px; color:#2C2C2C; line-height:1.8;">With gratitude,</div><div style="margin-top:4px; font-family:${nameFont}; font-size:28px; color:#2C2C2C; line-height:1.4;">${d.name}</div>
+        </div>` : ''}
+
+      </div>
+    `;
+
+    let container = document.getElementById('pdf-render-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'pdf-render-container';
+      container.style.cssText = 'position:fixed; left:-9999px; top:0; z-index:-1;';
+      document.body.appendChild(container);
+    }
+    container.innerHTML = printHTML;
+
+    const target = container.querySelector('#print-page');
+
+    // Give the inline @font-face a moment to load before capturing
+    await document.fonts.ready;
+    // Extra tick to let the browser apply the newly injected font
+    await new Promise(r => setTimeout(r, 300));
+
+
+    html2canvas(target, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#FAF7F2',
+      width: 794,
+      windowWidth: 794,
+    }).then(canvas => {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH);
+      pdf.save(`Birth Preferences - ${d.name}.pdf`);
+      btn.textContent = '⬇ Download PDF';
+      btn.disabled = false;
+    });
+  }
+</script>
+</body>
+</html>
