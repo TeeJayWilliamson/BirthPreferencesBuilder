@@ -552,13 +552,20 @@
     const row = document.createElement('div');
     row.className = 'pref-item-row';
     row.id = 'row-' + id;
+    // Add tabindex="-1" to prevent browser from auto-focusing on page load
     row.innerHTML = `
-      <input type="text" id="${id}" placeholder="${placeholder}">
-      <button class="remove-btn" onclick="removeRow('row-${id}')" title="Remove">×</button>
+      <input type="text" id="${id}" placeholder="${placeholder}" tabindex="-1">
+      <button class="remove-btn" onclick="removeRow('row-${id}')" title="Remove" tabindex="-1">×</button>
     `;
     list.appendChild(row);
 
-
+    if (shouldFocus) {
+      // Re-enable tabindex for user-added rows so they work normally
+      const input = document.getElementById(id);
+      input.removeAttribute('tabindex');
+      row.querySelector('.remove-btn').removeAttribute('tabindex');
+      input.focus();
+    }
 
     document.getElementById(id).addEventListener('keydown', e => {
       if (e.key === 'Enter') addRow(type, true);
