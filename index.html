@@ -563,6 +563,7 @@
       const input = document.getElementById(id);
       input.removeAttribute('tabindex');
       row.querySelector('.remove-btn').removeAttribute('tabindex');
+      input.focus();
     }
 
     document.getElementById(id).addEventListener('keydown', e => {
@@ -604,19 +605,11 @@
       if (e.target === this) closeModal();
     });
 
-    // Focus the name field — keeps scroll near the top and gives users a natural starting point
-    document.getElementById('name').focus();
-
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    // Focus name field without triggering any browser scroll
+    document.getElementById('name').focus({ preventScroll: true });
 
     loadBrittanyFont();
   });
-
-  window.addEventListener('load', () => {
-  setTimeout(() => {
-    window.scrollTo(0, 0);
-  }, 0);
-});
 
   function previewDoc() {
     const d = getData();
