@@ -492,7 +492,7 @@
     <div class="step-label">Step 4</div>
     <div class="step-title">Closing Words (optional)</div>
     <label for="closing">A final message to your care team</label>
-    <textarea id="closing" rows="3" placeholder="e.g. Thank you for welcoming my baby into the world with respect, skill, and kindness while also protecting my mental and emotional well-being.">Thank you for welcoming my baby into the world with respect, skill and kindness while also protecting my mental and emotional well-being.</textarea>
+    <textarea id="closing" rows="3" placeholder="e.g. Thank you for welcoming my baby into the world with respect, skill, and kindness while also protecting my mental and emotional well-being."></textarea>
   </div>
 
   <div class="generate-section">
@@ -597,17 +597,16 @@
   }
 
   window.addEventListener('DOMContentLoaded', () => {
-    // Pass no shouldFocus arg (defaults false) — page loads at top
     for (let i = 0; i < 3; i++) addRow('yes');
     for (let i = 0; i < 3; i++) addRow('no');
+
+    document.getElementById('closing').value = 'Thank you for welcoming my baby into the world with respect, skill and kindness while also protecting my mental and emotional well-being.';
 
     document.getElementById('modal').addEventListener('click', function(e) {
       if (e.target === this) closeModal();
     });
 
     loadBrittanyFont();
-
-    window.scrollTo(0, 0);
   });
 
   function previewDoc() {
