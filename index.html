@@ -596,6 +596,10 @@
   }
 
 window.addEventListener('DOMContentLoaded', () => {
+    // Temporarily make body capture focus before rows are added
+    document.body.setAttribute('tabindex', '-1');
+    document.body.focus({ preventScroll: true });
+
     for (let i = 0; i < 3; i++) addRow('yes');
     for (let i = 0; i < 3; i++) addRow('no');
     document.getElementById('closing').value = 'Thank you for welcoming my baby into the world with respect, skill and kindness while also protecting my mental and emotional well-being.';
@@ -603,9 +607,9 @@ window.addEventListener('DOMContentLoaded', () => {
       if (e.target === this) closeModal();
     });
     loadBrittanyFont();
-    // Prevent browser from scrolling to dynamically added inputs
-    if (document.activeElement) document.activeElement.blur();
-    window.scrollTo(0, 0);
+
+    document.body.removeAttribute('tabindex');
+    window.scrollTo({ top: 0, behavior: 'instant' });
 });
 
   function previewDoc() {
