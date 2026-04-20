@@ -784,7 +784,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
       pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH);
       pdf.save(`Birth Preferences - ${d.name}.pdf`);
-      btn.textContent = '⬇ Download PDF';
+      btn.textContent = 'Download PDF';
       btn.disabled = false;
     });
   }
