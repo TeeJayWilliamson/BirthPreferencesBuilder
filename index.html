@@ -361,7 +361,6 @@
     line-height: 1.7;
     color: #333;
   }
-  /* Care team greeting — now matches Yes/No header pill style */
   .preview-story .greeting {
     display: inline-block;
     background: var(--blue);
@@ -477,14 +476,14 @@
     <div class="step-title">Your Preferences</div>
     <div class="list-section">
       <div>
-        <div class="list-col-title yes-title">✓ Yes, Please</div>
+        <div class="list-col-title yes-title">✓ Yes, Please:</div>
         <div id="yes-list"></div>
-        <button class="add-row-btn yes-add" onclick="addRow('yes')">＋ Add preference</button>
+        <button class="add-row-btn yes-add" onclick="addRow('yes', true)">＋ Add preference</button>
       </div>
       <div>
-        <div class="list-col-title no-title">✗ No, Thank You</div>
+        <div class="list-col-title no-title">✗ No, Thank You:</div>
         <div id="no-list"></div>
-        <button class="add-row-btn no-add" onclick="addRow('no')">＋ Add preference</button>
+        <button class="add-row-btn no-add" onclick="addRow('no', true)">＋ Add preference</button>
       </div>
     </div>
   </div>
@@ -522,10 +521,8 @@
   let yesCount = 0;
   let noCount = 0;
 
-  // Cache the base64 font so we only fetch once
   let brittanyFontBase64 = null;
 
-  // Attempt to load BrittanySignature.ttf as base64 for use in html2canvas
   async function loadBrittanyFont() {
     if (brittanyFontBase64) return brittanyFontBase64;
     try {
@@ -543,7 +540,8 @@
     }
   }
 
-  function addRow(type) {
+  // shouldFocus = true only when user manually clicks "Add preference"
+  function addRow(type, shouldFocus = false) {
     const list = document.getElementById(type + '-list');
     const count = type === 'yes' ? ++yesCount : ++noCount;
     const id = type + '-' + count;
@@ -559,9 +557,14 @@
       <button class="remove-btn" onclick="removeRow('row-${id}')" title="Remove">×</button>
     `;
     list.appendChild(row);
-    setTimeout(() => document.getElementById(id).focus(), 50);
+
+    // Only focus if user explicitly added a row — not during initial page population
+    if (shouldFocus) {
+      setTimeout(() => document.getElementById(id).focus(), 50);
+    }
+
     document.getElementById(id).addEventListener('keydown', e => {
-      if (e.key === 'Enter') addRow(type);
+      if (e.key === 'Enter') addRow(type, true);
     });
   }
 
@@ -590,6 +593,7 @@
   }
 
   window.addEventListener('DOMContentLoaded', () => {
+    // Pass no shouldFocus arg (defaults false) — page loads at top
     for (let i = 0; i < 3; i++) addRow('yes');
     for (let i = 0; i < 3; i++) addRow('no');
 
@@ -597,7 +601,6 @@
       if (e.target === this) closeModal();
     });
 
-    // Pre-fetch font in the background so it's ready when needed
     loadBrittanyFont();
   });
 
@@ -651,10 +654,8 @@
     btn.textContent = 'Generating…';
     btn.disabled = true;
 
-    // Load font as base64 so html2canvas can render it
     const fontDataUrl = await loadBrittanyFont();
 
-    // Build the @font-face declaration — inline base64 if available, else fall back to Google Fonts
     const fontFaceCSS = fontDataUrl
       ? `@font-face { font-family: 'Brittany Signature'; src: url('${fontDataUrl}') format('truetype'); font-weight: 400; }`
       : `@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');`;
@@ -675,7 +676,6 @@
 
     const closingHtmlPdf = d.closing ? d.closing.replace(/\n/g, '<br>') : '';
 
-    // Care team greeting — matches Yes/No header pill style in the PDF
     const greetingHTML = d.careTeam
       ? `<div style="
             display:inline-block;
@@ -741,7 +741,8 @@
         ${d.closing ? `
         <div style="margin:24px 40px 0; padding-top:16px; border-top:1px solid #DDD; font-family:Georgia,serif; font-size:10.5px; color:#2C2C2C; line-height:1.8;">
           ${closingHtmlPdf}
-          <div style="margin-top:16px; font-family:Georgia,serif; font-size:10.5px; color:#2C2C2C; line-height:1.8;">With gratitude,</div><div style="margin-top:4px; font-family:${nameFont}; font-size:28px; color:#2C2C2C; line-height:1.4;">${d.name}</div>
+          <div style="margin-top:16px; font-family:Georgia,serif; font-size:10.5px; color:#2C2C2C; line-height:1.8;">With gratitude,</div>
+          <div style="margin-top:4px; font-family:${nameFont}; font-size:28px; color:#2C2C2C; line-height:1.4;">${d.name}</div>
         </div>` : ''}
 
       </div>
@@ -758,11 +759,8 @@
 
     const target = container.querySelector('#print-page');
 
-    // Give the inline @font-face a moment to load before capturing
     await document.fonts.ready;
-    // Extra tick to let the browser apply the newly injected font
     await new Promise(r => setTimeout(r, 300));
-
 
     html2canvas(target, {
       scale: 2,
