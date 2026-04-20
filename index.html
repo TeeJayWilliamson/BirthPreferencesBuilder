@@ -552,7 +552,7 @@
     const row = document.createElement('div');
     row.className = 'pref-item-row';
     row.id = 'row-' + id;
-    // Add tabindex="-1" to prevent browser from auto-focusing on page load
+
     row.innerHTML = `
       <input type="text" id="${id}" placeholder="${placeholder}" tabindex="-1">
       <button class="remove-btn" onclick="removeRow('row-${id}')" title="Remove" tabindex="-1">×</button>
@@ -560,7 +560,6 @@
     list.appendChild(row);
 
     if (shouldFocus) {
-      // Re-enable tabindex for user-added rows so they work normally
       const input = document.getElementById(id);
       input.removeAttribute('tabindex');
       row.querySelector('.remove-btn').removeAttribute('tabindex');
@@ -604,6 +603,13 @@
 
     document.getElementById('modal').addEventListener('click', function(e) {
       if (e.target === this) closeModal();
+    });
+
+    // Ensure page always starts at the top — blur any auto-focused element
+    // and force scroll to top after the browser has finished its own scroll logic
+    if (document.activeElement) document.activeElement.blur();
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     });
 
     loadBrittanyFont();
