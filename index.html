@@ -558,10 +558,7 @@
     `;
     list.appendChild(row);
 
-    // Only focus if user explicitly added a row — not during initial page population
-    if (shouldFocus) {
-      setTimeout(() => document.getElementById(id).focus(), 50);
-    }
+
 
     document.getElementById(id).addEventListener('keydown', e => {
       if (e.key === 'Enter') addRow(type, true);
