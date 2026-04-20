@@ -595,18 +595,18 @@
     };
   }
 
-  window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
     for (let i = 0; i < 3; i++) addRow('yes');
     for (let i = 0; i < 3; i++) addRow('no');
-
     document.getElementById('closing').value = 'Thank you for welcoming my baby into the world with respect, skill and kindness while also protecting my mental and emotional well-being.';
-
     document.getElementById('modal').addEventListener('click', function(e) {
       if (e.target === this) closeModal();
     });
-
     loadBrittanyFont();
-  });
+    // Prevent browser from scrolling to dynamically added inputs
+    if (document.activeElement) document.activeElement.blur();
+    window.scrollTo(0, 0);
+});
 
   function previewDoc() {
     const d = getData();
